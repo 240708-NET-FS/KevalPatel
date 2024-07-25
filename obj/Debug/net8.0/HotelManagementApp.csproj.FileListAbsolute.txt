@@ -1,0 +1,15 @@
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/bin/Debug/net8.0/HotelManagementApp
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/bin/Debug/net8.0/HotelManagementApp.deps.json
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/bin/Debug/net8.0/HotelManagementApp.runtimeconfig.json
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/bin/Debug/net8.0/HotelManagementApp.dll
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/bin/Debug/net8.0/HotelManagementApp.pdb
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.AssemblyInfoInputs.cache
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.AssemblyInfo.cs
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.csproj.CoreCompileInputs.cache
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.dll
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/refint/HotelManagementApp.dll
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.pdb
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.genruntimeconfig.cache
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/ref/HotelManagementApp.dll
+/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.csproj.AssemblyReference.cache
