@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace HotelManagementApp.Repository
+namespace HotelManagementApp.Repository.Entities
 {
     public class ApplicationDbContext : DbContext
     {
@@ -14,7 +14,7 @@ namespace HotelManagementApp.Repository
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<User> Users { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
@@ -26,8 +26,7 @@ namespace HotelManagementApp.Repository
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
-
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Hotel>().HasKey(h => h.HotelId);
