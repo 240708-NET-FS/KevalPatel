@@ -1,5 +1,5 @@
-namespace HotelManagementApp.Models
-{
+namespace HotelManagementApp.Repository;
+
     public class Room
     {
         public int RoomId { get; set; }
@@ -7,4 +7,4 @@ namespace HotelManagementApp.Models
         public bool IsAvailable { get; set; }
         public Hotel Hotel { get; set; }
     }
-}
+

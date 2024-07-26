@@ -1,9 +1,10 @@
-using HotelManagementApp.Repository.Entities;
+using HotelManagementApp.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace HotelManagementApp.Repository.Entities
+namespace HotelManagementApp.Repository
 {
     public class ApplicationDbContext : DbContext
     {
@@ -14,7 +15,7 @@ namespace HotelManagementApp.Repository.Entities
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<User> Users { get; set; }
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
@@ -26,7 +27,7 @@ namespace HotelManagementApp.Repository.Entities
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Hotel>().HasKey(h => h.HotelId);
@@ -74,5 +75,21 @@ namespace HotelManagementApp.Repository.Entities
             );
         }
 
+        public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+        {
+            public ApplicationDbContext CreateDbContext(string[] args)
+            {
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("services/appsettings.json")
+                    .Build();
+
+                var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                builder.UseSqlServer(connectionString);
+
+                return new ApplicationDbContext(builder.Options);
+            }
+        }
     }
 }

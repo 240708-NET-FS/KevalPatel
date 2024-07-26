@@ -1,6 +1,0 @@
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.csproj.AssemblyReference.cache
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.GeneratedMSBuildEditorConfig.editorconfig
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.AssemblyInfoInputs.cache
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.AssemblyInfo.cs
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.csproj.CoreCompileInputs.cache
-/Users/kevalpatel/Desktop/Revature/HotelManagementApp/obj/Debug/net8.0/HotelManagementApp.sourcelink.json

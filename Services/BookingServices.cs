@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HotelManagementApp.Repository;
-using HotelManagementApp.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelManagementApp.Services
-{
+namespace HotelManagementApp.Services;
+
     public class BookingService
     {
         private readonly ApplicationDbContext _context;
@@ -66,4 +65,3 @@ namespace HotelManagementApp.Services
             return _context.Bookings.Where(b => b.UserId == userId).ToList();
         }
     }
-}

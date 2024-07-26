@@ -1,8 +1,11 @@
 using System;
 using HotelManagementApp.Services;
+using System.Linq;
+using HotelManagementApp.Repository;
+using Microsoft.EntityFrameworkCore;
 
-namespace HotelManagementApp.Controllers
-{
+namespace HotelManagementApp.Controllers;
+
     public class BookingController
     {
         private readonly BookingService _bookingService;
@@ -63,4 +66,4 @@ namespace HotelManagementApp.Controllers
             }
         }
     }
-}
+

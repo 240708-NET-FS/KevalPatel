@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 
-namespace HotelManagementApp.Models
-{
+
+namespace HotelManagementApp.Repository;
+
     public class Booking
     {
         public int BookingId { get; set; }
@@ -12,4 +14,4 @@ namespace HotelManagementApp.Models
         public Room Room { get; set; }
         public User User { get; set; }
     }
-}
+

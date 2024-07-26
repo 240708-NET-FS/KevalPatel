@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HotelManagementApp
-{
+namespace HotelManagementApp;
+
     class Program
     {
         static void Main(string[] args)
@@ -30,4 +30,4 @@ namespace HotelManagementApp
             bookingController.Start();
         }
     }
-}
+
