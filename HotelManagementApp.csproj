@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json"> 
-      <CopyToOutputDirectory>PreserveNewsest</CopyToOutputDirectory>
+    <None Update="Services/appsettings.json"> 
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">

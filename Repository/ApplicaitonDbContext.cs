@@ -21,7 +21,7 @@ namespace HotelManagementApp.Repository
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("services/appsettings.json")
+                    .AddJsonFile("Services/appsettings.json")
                     .Build();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 optionsBuilder.UseSqlServer(connectionString);
