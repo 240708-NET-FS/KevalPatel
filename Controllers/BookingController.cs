@@ -44,35 +44,32 @@ public class BookingController
             var hotels = _bookingService.GetAvailableHotels();
             foreach (var hotel in hotels)
             {
-                Console.WriteLine($"Hotel ID: {hotel.HotelId}, Name: {hotel.Name}, Address: {hotel.Address}");
+                Console.WriteLine($"Hotel ID: {hotel.HotelId}, Name: {hotel.Name}, Address: {hotel.Address}, Price: {hotel.Rooms.First().Price:C}/day");
             }
 
             Console.Write("Enter Hotel ID: ");
             var hotelId = int.Parse(Console.ReadLine());
 
-            Console.Write("Enter Check-in Date (yyyy-MM-dd): ");
+            Console.Write("Enter Check-in Date (MM/dd/yyyy): ");
             var checkInDate = DateTime.Parse(Console.ReadLine());
 
-            Console.Write("Enter Check-out Date (yyyy-MM-dd): ");
+            Console.Write("Enter Check-out Date (MM/dd/yyyy): ");
             var checkOutDate = DateTime.Parse(Console.ReadLine());
 
             if (_bookingService.CheckRoomAvailability(hotelId, checkInDate, checkOutDate))
             {
-                Console.Write("Enter User Name: ");
-                var userName = Console.ReadLine();
+                Console.Write("Enter First Name: ");
+                var firstName = Console.ReadLine();
 
-                var user = _bookingService.GetUserByName(userName);
-                if (user == null)
-                {
-                    Console.WriteLine("User not found. Creating a new user.");
-                    user = new User { Name = userName };
-                    _bookingService.AddUser(user);
-                }
+                Console.Write("Enter Last Name: ");
+                var lastName = Console.ReadLine();
 
-                var bookingSuccess = _bookingService.BookRoom(hotelId, user.UserId, checkInDate, checkOutDate);
-                if (bookingSuccess)
+                var user = _bookingService.GetOrCreateUser(firstName, lastName);
+                var confirmationNumber = _bookingService.GenerateConfirmationNumber();
+
+                if (_bookingService.BookRoom(hotelId, user.UserId, checkInDate, checkOutDate, confirmationNumber))
                 {
-                    Console.WriteLine("Room successfully booked!");
+                    Console.WriteLine($"Room successfully booked! Your confirmation number is {confirmationNumber}");
                 }
                 else
                 {
@@ -90,17 +87,16 @@ public class BookingController
             Console.Write("Enter Confirmation Number: ");
             var confirmationNumber = Console.ReadLine();
 
-            var booking = _bookingService.GetBookingByConfirmationNumber(confirmationNumber);
+            Console.Write("Enter Last Name: ");
+            var lastName = Console.ReadLine();
 
+            var booking = _bookingService.GetBookingByConfirmationNumberAndLastName(confirmationNumber, lastName);
             if (booking != null)
             {
-                Console.WriteLine($"Booking ID: {booking.BookingId}");
-                Console.WriteLine($"Hotel ID: {booking.Room.Hotel.HotelId}");
-                Console.WriteLine($"Room ID: {booking.RoomId}");
-                Console.WriteLine($"User ID: {booking.UserId}");
-                Console.WriteLine($"Check-in Date: {booking.CheckInDate}");
-                Console.WriteLine($"Check-out Date: {booking.CheckOutDate}");
-                Console.WriteLine($"Confirmation Number: {booking.ConfirmationNumber}");
+                Console.WriteLine($"Booking found for {booking.User.FirstName} {booking.User.LastName} at {booking.Room.Hotel.Name}.");
+                Console.WriteLine($"Check-in Date: {booking.CheckInDate:MM/dd/yyyy}");
+                Console.WriteLine($"Check-out Date: {booking.CheckOutDate:MM/dd/yyyy}");
+                Console.WriteLine($"Total Cost: {booking.Room.Price * (booking.CheckOutDate - booking.CheckInDate).Days:C}");
             }
             else
             {

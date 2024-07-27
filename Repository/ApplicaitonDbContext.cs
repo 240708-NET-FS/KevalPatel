@@ -5,7 +5,7 @@ using System.IO;
 
 namespace HotelManagementApp.Repository;
 
-   public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -26,6 +26,25 @@ namespace HotelManagementApp.Repository;
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
+
+        public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+        {
+            public ApplicationDbContext CreateDbContext(string[] args)
+            {
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("services/appsettings.json")
+                    .Build();
+
+                var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                builder.UseSqlServer(connectionString);
+
+                return new ApplicationDbContext(builder.Options);
+            }
+        }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -54,40 +73,30 @@ namespace HotelManagementApp.Repository;
                 .IsUnique();
 
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.Name)
+                .HasIndex(u => u.FirstName)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.LastName)
                 .IsUnique();
 
             modelBuilder.Entity<Hotel>().HasData(
-                new Hotel { HotelId = 1, Name = "Hotel A", Address = "123 Street A" },
-                new Hotel { HotelId = 2, Name = "Hotel B", Address = "456 Street B" }
+                new Hotel { HotelId = 1, Name = "Hilton NYC", Address = "123 Street A" },
+                new Hotel { HotelId = 2, Name = "HolidayInn NYC", Address = "456 Street B" }
             );
 
-            modelBuilder.Entity<Room>().HasData(
-                new Room { RoomId = 1, HotelId = 1, IsAvailable = true },
-                new Room { RoomId = 2, HotelId = 1, IsAvailable = true },
-                new Room { RoomId = 3, HotelId = 2, IsAvailable = true }
-            );
-
-            modelBuilder.Entity<User>().HasData(
-                new User { UserId = 1, Name = "John Doe" },
-                new User { UserId = 2, Name = "Jane Smith" }
-            );
-        }
-
-        public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
-        {
-            public ApplicationDbContext CreateDbContext(string[] args)
+            for (int i = 1; i <= 50; i++)
             {
-                IConfigurationRoot configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("services/appsettings.json")
-                    .Build();
+                modelBuilder.Entity<Room>().HasData(
+                    new Room { RoomId = i, HotelId = 1, IsAvailable = true, Price = 125m }
+                );
+            }
 
-                var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-                var connectionString = configuration.GetConnectionString("DefaultConnection");
-                builder.UseSqlServer(connectionString);
-
-                return new ApplicationDbContext(builder.Options);
+            for (int i = 51; i <= 100; i++)
+            {
+                modelBuilder.Entity<Room>().HasData(
+                    new Room { RoomId = i, HotelId = 2, IsAvailable = true, Price = 75m }
+                );
             }
         }
     }

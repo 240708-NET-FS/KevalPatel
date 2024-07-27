@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagementApp.Services;
 
-    public class BookingService
+public class BookingService
     {
         private readonly ApplicationDbContext _context;
 
@@ -17,63 +17,61 @@ namespace HotelManagementApp.Services;
 
         public List<Hotel> GetAvailableHotels()
         {
-            return _context.Hotels.ToList();
+            return _context.Hotels.Include(h => h.Rooms).ToList();
         }
 
         public bool CheckRoomAvailability(int hotelId, DateTime checkInDate, DateTime checkOutDate)
         {
-            var availableRooms = _context.Rooms
-                .Where(r => r.HotelId == hotelId && r.IsAvailable)
-                .ToList();
-
-            // Assuming we have some logic to check if rooms are available in the date range
-            return availableRooms.Any();
+            return _context.Rooms.Any(r => r.HotelId == hotelId && r.IsAvailable);
         }
 
-        public bool BookRoom(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate)
+        public bool BookRoom(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate, string confirmationNumber)
         {
-            var room = _context.Rooms
-                .FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable);
-
-            if (room == null) return false;
-
-            var booking = new Booking
+            var room = _context.Rooms.FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable);
+            if (room != null)
             {
-                RoomId = room.RoomId,
-                UserId = userId,
-                CheckInDate = checkInDate,
-                CheckOutDate = checkOutDate,
-                ConfirmationNumber = GenerateConfirmationNumber()
-            };
-
-            room.IsAvailable = false;
-            _context.Bookings.Add(booking);
-            _context.SaveChanges();
-
-            return true;
+                room.IsAvailable = false;
+                var booking = new Booking
+                {
+                    RoomId = room.RoomId,
+                    UserId = userId,
+                    CheckInDate = checkInDate,
+                    CheckOutDate = checkOutDate,
+                    ConfirmationNumber = confirmationNumber
+                };
+                _context.Bookings.Add(booking);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
         }
 
-        public Booking GetBookingByConfirmationNumber(string confirmationNumber)
+        public Booking GetBookingByConfirmationNumberAndLastName(string confirmationNumber, string lastName)
         {
             return _context.Bookings
                 .Include(b => b.Room)
                 .Include(b => b.User)
-                .FirstOrDefault(b => b.ConfirmationNumber == confirmationNumber);
+                .Where(b => b.ConfirmationNumber == confirmationNumber && b.User.LastName == lastName)
+                .FirstOrDefault();
         }
 
-        public User GetUserByName(string name)
+        public string GenerateConfirmationNumber()
         {
-            return _context.Users.FirstOrDefault(u => u.Name == name);
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 6)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public void AddUser(User user)
+        public User GetOrCreateUser(string firstName, string lastName)
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-        }
-
-        private string GenerateConfirmationNumber()
-        {
-            return Guid.NewGuid().ToString(); // Generate a unique confirmation number
+            var user = _context.Users.FirstOrDefault(u => u.FirstName == firstName && u.LastName == lastName);
+            if (user == null)
+            {
+                user = new User { FirstName = firstName, LastName = lastName };
+                _context.Users.Add(user);
+                _context.SaveChanges();
+            }
+            return user;
         }
     }
