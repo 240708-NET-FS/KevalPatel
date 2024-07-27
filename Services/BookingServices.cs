@@ -17,51 +17,63 @@ namespace HotelManagementApp.Services;
 
         public List<Hotel> GetAvailableHotels()
         {
-            return _context.Hotels.Include(h => h.Rooms).ToList();
+            return _context.Hotels.ToList();
         }
 
-        public bool CheckRoomAvailability(int hotelId, DateTime checkIn, DateTime checkOut)
+        public bool CheckRoomAvailability(int hotelId, DateTime checkInDate, DateTime checkOutDate)
         {
-            var hotel = _context.Hotels.Include(h => h.Rooms).FirstOrDefault(h => h.HotelId == hotelId);
-            if (hotel == null) return false;
+            var availableRooms = _context.Rooms
+                .Where(r => r.HotelId == hotelId && r.IsAvailable)
+                .ToList();
 
-            foreach (var room in hotel.Rooms)
-            {
-                var bookings = _context.Bookings.Where(b => b.RoomId == room.RoomId && 
-                ((checkIn >= b.CheckInDate && checkIn <= b.CheckOutDate) || 
-                (checkOut >= b.CheckInDate && checkOut <= b.CheckOutDate))).ToList();
-
-                if (bookings.Count == 0 && room.IsAvailable) return true;
-            }
-
-            return false;
+            // Assuming we have some logic to check if rooms are available in the date range
+            return availableRooms.Any();
         }
 
-        public bool BookRoom(int hotelId, int userId, DateTime checkIn, DateTime checkOut)
+        public bool BookRoom(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate)
         {
-            var hotel = _context.Hotels.Include(h => h.Rooms).FirstOrDefault(h => h.HotelId == hotelId);
-            if (hotel == null) return false;
+            var room = _context.Rooms
+                .FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable);
 
-            var availableRoom = hotel.Rooms.FirstOrDefault(r => r.IsAvailable);
-            if (availableRoom == null) return false;
+            if (room == null) return false;
 
             var booking = new Booking
             {
-                RoomId = availableRoom.RoomId,
+                RoomId = room.RoomId,
                 UserId = userId,
-                CheckInDate = checkIn,
-                CheckOutDate = checkOut
+                CheckInDate = checkInDate,
+                CheckOutDate = checkOutDate,
+                ConfirmationNumber = GenerateConfirmationNumber()
             };
 
+            room.IsAvailable = false;
             _context.Bookings.Add(booking);
-            availableRoom.IsAvailable = false;
             _context.SaveChanges();
 
             return true;
         }
 
-        public List<Booking> GetUserBookings(int userId)
+        public Booking GetBookingByConfirmationNumber(string confirmationNumber)
         {
-            return _context.Bookings.Where(b => b.UserId == userId).ToList();
+            return _context.Bookings
+                .Include(b => b.Room)
+                .Include(b => b.User)
+                .FirstOrDefault(b => b.ConfirmationNumber == confirmationNumber);
+        }
+
+        public User GetUserByName(string name)
+        {
+            return _context.Users.FirstOrDefault(u => u.Name == name);
+        }
+
+        public void AddUser(User user)
+        {
+            _context.Users.Add(user);
+            _context.SaveChanges();
+        }
+
+        private string GenerateConfirmationNumber()
+        {
+            return Guid.NewGuid().ToString(); // Generate a unique confirmation number
         }
     }

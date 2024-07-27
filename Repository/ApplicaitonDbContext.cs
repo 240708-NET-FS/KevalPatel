@@ -1,12 +1,11 @@
-using HotelManagementApp.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace HotelManagementApp.Repository
-{
-    public class ApplicationDbContext : DbContext
+namespace HotelManagementApp.Repository;
+
+   public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -21,7 +20,7 @@ namespace HotelManagementApp.Repository
             {
                 IConfigurationRoot configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("Services/appsettings.json")
+                    .AddJsonFile("services/appsettings.json")
                     .Build();
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 optionsBuilder.UseSqlServer(connectionString);
@@ -92,4 +91,3 @@ namespace HotelManagementApp.Repository
             }
         }
     }
-}

@@ -6,6 +6,7 @@ namespace HotelManagementApp.Repository;
     {
         public int UserId { get; set; }
         public string Name { get; set; }
-        public List<Booking> Bookings { get; set; }
+        public ICollection<Booking> Bookings { get; set; }
     }
+
 

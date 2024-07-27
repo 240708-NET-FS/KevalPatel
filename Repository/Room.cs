@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace HotelManagementApp.Repository;
 
     public class Room
@@ -7,4 +10,6 @@ namespace HotelManagementApp.Repository;
         public bool IsAvailable { get; set; }
         public Hotel Hotel { get; set; }
     }
+
+
 
