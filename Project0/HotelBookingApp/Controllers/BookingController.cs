@@ -1,4 +1,3 @@
-
 using System;
 using HotelBookingApp.Services;
 using System.Linq;
@@ -21,8 +20,7 @@ namespace HotelBookingApp.Controllers
             while (true)
             {
                 Console.WriteLine("1. List of available Hotels");
-                Console.WriteLine("2. View Booking by Confirmation Number");
-                Console.WriteLine("3. Exit");
+                Console.WriteLine("2. Exit");
                 var choice = Console.ReadLine();
 
                 if (choice == "1")
@@ -31,11 +29,11 @@ namespace HotelBookingApp.Controllers
                 }
                 else if (choice == "2")
                 {
-                    ViewBookingByConfirmationNumber();
-                }
-                else if (choice == "3")
-                {
                     break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice. Please try again.");
                 }
             }
         }
@@ -89,6 +87,9 @@ namespace HotelBookingApp.Controllers
 
                     if (_bookingService.CheckRoomAvailability(hotelId, checkInDate, checkOutDate))
                     {
+                        Console.Write("Enter Number of Rooms: ");
+                        int numberOfRooms = int.Parse(Console.ReadLine());
+
                         Console.Write("Enter First Name: ");
                         var firstName = Console.ReadLine();
 
@@ -96,23 +97,36 @@ namespace HotelBookingApp.Controllers
                         var lastName = Console.ReadLine();
 
                         var user = _bookingService.GetOrCreateUser(firstName, lastName);
-                        var confirmationNumber = _bookingService.GenerateConfirmationNumber();
+                        string confirmationNumber;
 
-                        if (_bookingService.BookRoom(hotelId, user.UserId, checkInDate, checkOutDate, confirmationNumber))
+                        if (_bookingService.BookRooms(hotelId, user.UserId, checkInDate, checkOutDate, numberOfRooms, out confirmationNumber))
                         {
-                            var totalCost = _bookingService.CalculateTotalCost(hotelId, checkInDate, checkOutDate);
-                            Console.WriteLine($"Room successfully booked! Your confirmation number is {confirmationNumber}. Please write it down as you will need it to lookup the reservation.");
+                            var totalCost = _bookingService.CalculateTotalCost(hotelId, checkInDate, checkOutDate) * numberOfRooms;
+                            Console.WriteLine($"Rooms successfully booked! Your confirmation number is {confirmationNumber}. Please write it down as you will need it to lookup the reservation.");
                             Console.WriteLine($"Total due at check-in: {totalCost:C}");
-                            break;
                         }
                         else
                         {
-                            Console.WriteLine("Failed to book the room.");
+                            Console.WriteLine("Failed to book the rooms. Not enough rooms available.");
                         }
                     }
                     else
                     {
                         Console.WriteLine("The selected dates are not available.");
+                    }
+
+                    // Additional options for viewing, editing, and canceling bookings
+                    Console.WriteLine("4. Manage Existing Bookings");
+                    Console.WriteLine("5. Exit");
+                    var managementChoice = Console.ReadLine();
+
+                    if (managementChoice == "4")
+                    {
+                        ManageBookings();
+                    }
+                    else if (managementChoice == "5")
+                    {
+                        break;
                     }
                 }
                 catch (FormatException)
@@ -126,32 +140,83 @@ namespace HotelBookingApp.Controllers
             }
         }
 
-        private void ViewBookingByConfirmationNumber()
+        private void ManageBookings()
         {
-            try
+            Console.Write("Enter Confirmation Number: ");
+            var confirmationNumber = Console.ReadLine();
+
+            Console.Write("Enter Last Name: ");
+            var lastName = Console.ReadLine();
+
+            var booking = _bookingService.GetBookingByConfirmationNumberAndLastName(confirmationNumber, lastName);
+
+            if (booking != null)
             {
-                Console.Write("Enter Confirmation Number: ");
-                var confirmationNumber = Console.ReadLine();
+                Console.WriteLine($"Booking found for {booking.User.FirstName} {booking.User.LastName} at {booking.Room.Hotel.Name}.");
+                Console.WriteLine($"Check-in Date: {booking.CheckInDate:MM/dd/yyyy}");
+                Console.WriteLine($"Check-out Date: {booking.CheckOutDate:MM/dd/yyyy}");
 
-                Console.Write("Enter Last Name: ");
-                var lastName = Console.ReadLine();
+                Console.WriteLine("1. Edit Booking");
+                Console.WriteLine("2. Cancel Booking");
+                Console.WriteLine("3. Back to Main Menu");
+                var choice = Console.ReadLine();
 
-                var booking = _bookingService.GetBookingByConfirmationNumberAndLastName(confirmationNumber, lastName);
-                if (booking != null)
+                if (choice == "1")
                 {
-                    Console.WriteLine($"Booking found for {booking.User.FirstName} {booking.User.LastName} at {booking.Room.Hotel.Name}.");
-                    Console.WriteLine($"Check-in Date: {booking.CheckInDate:MM/dd/yyyy}");
-                    Console.WriteLine($"Check-out Date: {booking.CheckOutDate:MM/dd/yyyy}");
-                    Console.WriteLine($"Total Cost: {booking.Room.Price * (booking.CheckOutDate - booking.CheckInDate).Days:C}");
+                    EditBooking(confirmationNumber);
                 }
-                else
+                else if (choice == "2")
                 {
-                    Console.WriteLine("Booking not found.");
+                    CancelBooking(confirmationNumber);
+                }
+                else if (choice == "3")
+                {
+                    return;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error: {ex.Message}. Please try again.");
+                Console.WriteLine("Booking not found.");
+            }
+        }
+
+        private void EditBooking(string confirmationNumber)
+        {
+            Console.Write("Enter New Check-in Date (MM/dd/yyyy): ");
+            DateTime newCheckInDate;
+            while (!DateTime.TryParseExact(Console.ReadLine(), "MM/dd/yyyy", null, System.Globalization.DateTimeStyles.None, out newCheckInDate) || newCheckInDate <= DateTime.Now)
+            {
+                Console.WriteLine("Date must be in the future and in correct format");
+                Console.Write("Enter New Check-in Date (MM/dd/yyyy): ");
+            }
+
+            Console.Write("Enter New Check-out Date (MM/dd/yyyy): ");
+            DateTime newCheckOutDate;
+            while (!DateTime.TryParseExact(Console.ReadLine(), "MM/dd/yyyy", null, System.Globalization.DateTimeStyles.None, out newCheckOutDate) || newCheckOutDate <= newCheckInDate)
+            {
+                Console.WriteLine("Date must be after check-in date and in correct format");
+                Console.Write("Enter New Check-out Date (MM/dd/yyyy): ");
+            }
+
+            if (_bookingService.EditBooking(confirmationNumber, newCheckInDate, newCheckOutDate))
+            {
+                Console.WriteLine("Booking updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to update the booking. Please ensure the new dates are available.");
+            }
+        }
+
+        private void CancelBooking(string confirmationNumber)
+        {
+            if (_bookingService.CancelBooking(confirmationNumber))
+            {
+                Console.WriteLine("Booking canceled successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to cancel the booking. Please check the confirmation number.");
             }
         }
     }

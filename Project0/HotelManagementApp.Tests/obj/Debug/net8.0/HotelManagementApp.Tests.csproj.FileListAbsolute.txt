@@ -1,7 +1,0 @@
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/bin/Debug/net8.0/CoverletSourceRootsMapping_HotelManagementApp.Tests
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.csproj.AssemblyReference.cache
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.GeneratedMSBuildEditorConfig.editorconfig
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.AssemblyInfoInputs.cache
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.AssemblyInfo.cs
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.csproj.CoreCompileInputs.cache
-/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelManagementApp.Tests/obj/Debug/net8.0/HotelManagementApp.Tests.sourcelink.json

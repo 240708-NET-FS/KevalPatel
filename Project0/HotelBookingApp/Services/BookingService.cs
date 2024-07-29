@@ -29,16 +29,21 @@ namespace HotelBookingApp.Services
                                                                         (checkInDate <= b.CheckInDate && checkOutDate >= b.CheckOutDate))));
         }
 
-        public bool BookRoom(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate, string confirmationNumber)
+        public bool BookRooms(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate, int numberOfRooms, out string confirmationNumber)
         {
-            var room = _context.Rooms.FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable && 
-                                                          !_context.Bookings.Any(b => b.RoomId == r.RoomId &&
-                                                                                      ((checkInDate >= b.CheckInDate && checkInDate < b.CheckOutDate) ||
-                                                                                       (checkOutDate > b.CheckInDate && checkOutDate <= b.CheckOutDate) ||
-                                                                                       (checkInDate <= b.CheckInDate && checkOutDate >= b.CheckOutDate))));
-            if (room != null)
+            confirmationNumber = GenerateConfirmationNumber();
+            var availableRooms = _context.Rooms
+                .Where(r => r.HotelId == hotelId && r.IsAvailable)
+                .Take(numberOfRooms)
+                .ToList();
+
+            if (availableRooms.Count < numberOfRooms)
             {
-                room.IsAvailable = false;
+                return false; // Not enough rooms available
+            }
+
+            foreach (var room in availableRooms)
+            {
                 var booking = new Booking
                 {
                     RoomId = room.RoomId,
@@ -47,11 +52,13 @@ namespace HotelBookingApp.Services
                     CheckOutDate = checkOutDate.Date,
                     ConfirmationNumber = confirmationNumber
                 };
+
+                room.IsAvailable = false; // Mark room as unavailable
                 _context.Bookings.Add(booking);
-                _context.SaveChanges();
-                return true;
             }
-            return false;
+
+            _context.SaveChanges();
+            return true;
         }
 
         public Booking GetBookingByConfirmationNumberAndLastName(string confirmationNumber, string lastName)
@@ -89,6 +96,54 @@ namespace HotelBookingApp.Services
             if (room == null) throw new Exception("Room not found.");
             var days = (checkOutDate.Date - checkInDate.Date).Days;
             return room.Price * days;
+        }
+
+        public bool EditBooking(string confirmationNumber, DateTime newCheckInDate, DateTime newCheckOutDate)
+        {
+            var bookings = _context.Bookings
+                .Where(b => b.ConfirmationNumber == confirmationNumber)
+                .ToList();
+
+            if (!bookings.Any())
+                return false;
+
+            foreach (var booking in bookings)
+            {
+                if (!_context.Rooms.Any(r => r.RoomId == booking.RoomId && r.IsAvailable && 
+                                              !_context.Bookings.Any(b => b.RoomId == r.RoomId &&
+                                                                          ((newCheckInDate >= b.CheckInDate && newCheckInDate < b.CheckOutDate) ||
+                                                                           (newCheckOutDate > b.CheckInDate && newCheckOutDate <= b.CheckOutDate) ||
+                                                                           (newCheckInDate <= b.CheckInDate && newCheckOutDate >= b.CheckOutDate)))))
+                {
+                    return false; // No available rooms for the new dates
+                }
+
+                booking.CheckInDate = newCheckInDate.Date;
+                booking.CheckOutDate = newCheckOutDate.Date;
+            }
+
+            _context.SaveChanges();
+            return true;
+        }
+
+        public bool CancelBooking(string confirmationNumber)
+        {
+            var bookings = _context.Bookings
+                .Include(b => b.Room)
+                .Where(b => b.ConfirmationNumber == confirmationNumber)
+                .ToList();
+
+            if (!bookings.Any())
+                return false;
+
+            foreach (var booking in bookings)
+            {
+                booking.Room.IsAvailable = true; // Mark room as available again
+                _context.Bookings.Remove(booking);
+            }
+
+            _context.SaveChanges();
+            return true;
         }
     }
 }
