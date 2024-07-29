@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace HotelBookingApp.Repository;
-
-public class ApplicationDbContext : DbContext
+namespace HotelBookingApp.Repository
+{
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -44,8 +44,6 @@ public class ApplicationDbContext : DbContext
             }
         }
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Hotel>().HasKey(h => h.HotelId);
@@ -72,12 +70,10 @@ public class ApplicationDbContext : DbContext
                 .HasIndex(h => h.Name)
                 .IsUnique();
 
+            // Remove unique constraints from FirstName and LastName
+            // Use combination of FirstName and LastName to ensure uniqueness if necessary
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.FirstName)
-                .IsUnique();
-
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.LastName)
+                .HasIndex(u => new { u.FirstName, u.LastName })
                 .IsUnique();
 
             modelBuilder.Entity<Hotel>().HasData(
@@ -100,3 +96,4 @@ public class ApplicationDbContext : DbContext
             }
         }
     }
+}
