@@ -1,42 +1,69 @@
-using System;
-using System.IO;
-using HotelBookingApp.Controllers;
-using HotelBookingApp.Services;
 using Moq;
 using Xunit;
+using System;
+using System.Collections.Generic;
 
-namespace HotelManagementApp.Tests.Controllers
+public class BookingControllerTests
 {
-    public class BookingControllerTests
+    private readonly Mock<BookingService> _mockService;
+    private readonly BookingController _controller;
+
+    public BookingControllerTests()
     {
-        private readonly Mock<BookingService> _mockBookingService;
-        private readonly BookingController _bookingController;
+        _mockService = new Mock<BookingService>();
+        _controller = new BookingController(_mockService.Object);
+    }
 
-        public BookingControllerTests()
+    [Fact]
+    public void ListAvailableHotels_PrintsHotelsAndBooksRoomSuccessfully()
+    {
+        // Arrange
+        var hotels = new List<Hotel>
         {
-            _mockBookingService = new Mock<BookingService>();
-            _bookingController = new BookingController(_mockBookingService.Object);
-        }
+            new Hotel
+            {
+                HotelId = 1,
+                Name = "Test Hotel",
+                Address = "123 Test St",
+                Rooms = new List<Room>
+                {
+                    new Room { RoomId = 1, HotelId = 1, IsAvailable = true, Price = 100 }
+                }
+            }
+        };
+        _mockService.Setup(s => s.GetAvailableHotels()).Returns(hotels);
+        _mockService.Setup(s => s.CheckRoomAvailability(It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).Returns(true);
+        _mockService.Setup(s => s.GetOrCreateUser(It.IsAny<string>(), It.IsAny<string>())).Returns(new User { UserId = 1 });
+        _mockService.Setup(s => s.GenerateConfirmationNumber()).Returns("ABC123");
+        _mockService.Setup(s => s.BookRoom(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>())).Returns(true);
 
-        [Fact]
-        public void Start_ValidInput_ExecutesCorrectly()
+        // Act
+        Console.SetIn(new System.IO.StringReader("1\n1\n07/30/2024\n07/31/2024\nJohn\nDoe\n3\n"));
+        _controller.Start();
+
+        // Assert
+        _mockService.Verify(s => s.BookRoom(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()), Times.Once);
+    }
+
+    [Fact]
+    public void ViewBookingByConfirmationNumber_PrintsBookingDetails()
+    {
+        // Arrange
+        var booking = new Booking
         {
-            // Arrange
-            var consoleOutput = new StringWriter();
-            Console.SetOut(consoleOutput);
-            var consoleInput = new StringReader("3\n");
-            Console.SetIn(consoleInput);
+            ConfirmationNumber = "ABC123",
+            User = new User { FirstName = "John", LastName = "Doe" },
+            Room = new Room { Hotel = new Hotel { Name = "Test Hotel" }, Price = 100 },
+            CheckInDate = new DateTime(2024, 07, 30),
+            CheckOutDate = new DateTime(2024, 07, 31)
+        };
+        _mockService.Setup(s => s.GetBookingByConfirmationNumberAndLastName(It.IsAny<string>(), It.IsAny<string>())).Returns(booking);
 
-            // Act
-            _bookingController.Start();
+        // Act
+        Console.SetIn(new System.IO.StringReader("2\nABC123\nDoe\n3\n"));
+        _controller.Start();
 
-            // Assert
-            var output = consoleOutput.ToString();
-            Assert.Contains("1. List of available Hotels", output);
-            Assert.Contains("2. View Booking by Confirmation Number", output);
-            Assert.Contains("3. Exit", output);
-        }
-
-        // Add more tests for other methods in BookingController
+        // Assert
+        _mockService.Verify(s => s.GetBookingByConfirmationNumberAndLastName(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 }
