@@ -4417,11 +4417,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/kevalpatel/Desktop/Revature/Project0/HotelBookingApp/HotelBookingApp.csproj",
+      "projectUniqueName": "/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelBookingApp/HotelBookingApp.csproj",
       "projectName": "HotelBookingApp",
-      "projectPath": "/Users/kevalpatel/Desktop/Revature/Project0/HotelBookingApp/HotelBookingApp.csproj",
+      "projectPath": "/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelBookingApp/HotelBookingApp.csproj",
       "packagesPath": "/Users/kevalpatel/.nuget/packages/",
-      "outputPath": "/Users/kevalpatel/Desktop/Revature/Project0/HotelBookingApp/obj/",
+      "outputPath": "/Users/kevalpatel/Desktop/Revature1/KevalPatel/Project0/HotelBookingApp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/kevalpatel/.nuget/NuGet/NuGet.Config"

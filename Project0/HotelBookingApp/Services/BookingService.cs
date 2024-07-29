@@ -4,9 +4,9 @@ using System.Linq;
 using HotelBookingApp.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelBookingApp.Services;
-
-public class BookingService
+namespace HotelBookingApp.Services
+{
+    public class BookingService
     {
         private readonly ApplicationDbContext _context;
 
@@ -22,12 +22,20 @@ public class BookingService
 
         public bool CheckRoomAvailability(int hotelId, DateTime checkInDate, DateTime checkOutDate)
         {
-            return _context.Rooms.Any(r => r.HotelId == hotelId && r.IsAvailable);
+            return _context.Rooms.Any(r => r.HotelId == hotelId && r.IsAvailable && 
+                                           !_context.Bookings.Any(b => b.RoomId == r.RoomId &&
+                                                                       ((checkInDate >= b.CheckInDate && checkInDate < b.CheckOutDate) ||
+                                                                        (checkOutDate > b.CheckInDate && checkOutDate <= b.CheckOutDate) ||
+                                                                        (checkInDate <= b.CheckInDate && checkOutDate >= b.CheckOutDate))));
         }
 
         public bool BookRoom(int hotelId, int userId, DateTime checkInDate, DateTime checkOutDate, string confirmationNumber)
         {
-            var room = _context.Rooms.FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable);
+            var room = _context.Rooms.FirstOrDefault(r => r.HotelId == hotelId && r.IsAvailable && 
+                                                          !_context.Bookings.Any(b => b.RoomId == r.RoomId &&
+                                                                                      ((checkInDate >= b.CheckInDate && checkInDate < b.CheckOutDate) ||
+                                                                                       (checkOutDate > b.CheckInDate && checkOutDate <= b.CheckOutDate) ||
+                                                                                       (checkInDate <= b.CheckInDate && checkOutDate >= b.CheckOutDate))));
             if (room != null)
             {
                 room.IsAvailable = false;
@@ -35,8 +43,8 @@ public class BookingService
                 {
                     RoomId = room.RoomId,
                     UserId = userId,
-                    CheckInDate = checkInDate,
-                    CheckOutDate = checkOutDate,
+                    CheckInDate = checkInDate.Date,
+                    CheckOutDate = checkOutDate.Date,
                     ConfirmationNumber = confirmationNumber
                 };
                 _context.Bookings.Add(booking);
@@ -74,4 +82,13 @@ public class BookingService
             }
             return user;
         }
+
+        public decimal CalculateTotalCost(int hotelId, DateTime checkInDate, DateTime checkOutDate)
+        {
+            var room = _context.Rooms.FirstOrDefault(r => r.HotelId == hotelId);
+            if (room == null) throw new Exception("Room not found.");
+            var days = (checkOutDate.Date - checkInDate.Date).Days;
+            return room.Price * days;
+        }
     }
+}
